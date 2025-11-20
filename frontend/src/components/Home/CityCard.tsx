@@ -1,14 +1,21 @@
-import { Card, Grid, Stack, Typography, Box } from '@mui/material';
+import { Card, Grid, Stack, Typography, Box, IconButton } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import SunnyIcon from '@mui/icons-material/Sunny';
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { motion } from 'framer-motion';
 
 import CityCardSkeleton from './CityCardSkeleton';
 
-import { fetchCoordsByName, fetchWeatherByCoords } from '@/services/weatherApi';
-import type { WeatherDTO, CityDTO } from '@/types/weatherApi';
+import { useCityWeather } from '@/hooks/userCityWeather';
+import { AppDispatch } from '@/redux/store';
+import { toggleFavoriteCity } from '@/redux/slices/favCitiesSlice';
+import { selectIsCityFavorite } from '@/redux/selectors/favCitiesSelectors';
+import Temperature from '@/components/common/Temperature';
+
+const MotionIconButton = motion(IconButton);
 
 interface CityCardProps {
   cityName: string;
@@ -16,45 +23,30 @@ interface CityCardProps {
 
 export default function CityCard({ cityName }: CityCardProps) {
   const navigate = useNavigate();
-  const [weather, setWeather] = useState<WeatherDTO | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const isFavorite = useSelector(selectIsCityFavorite(cityName));
 
-  useEffect(() => {
-    const loadWeather = async () => {
-      try {
-        setIsLoading(true);
-
-        const coordsList: CityDTO[] = await fetchCoordsByName(cityName);
-
-        if (!coordsList.length) {
-          console.warn('Brak współrzędnych dla miasta:', cityName);
-          return;
-        }
-
-        const coords = coordsList[0];
-        const weatherData = await fetchWeatherByCoords(coords);
-
-        console.log(`${cityName} weather data:`, weatherData);
-        setWeather(weatherData);
-      } catch (error) {
-        console.error('Błąd podczas pobierania pogody:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadWeather();
-  }, [cityName]);
+  const {
+    data: weatherData,
+    isLoading: weatherLoading,
+    error: weatherError,
+    isError,
+  } = useCityWeather(cityName);
 
   const handleClick = () => {
     navigate(`/${encodeURIComponent(cityName)}`);
   };
 
-  if (isLoading) {
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(toggleFavoriteCity(cityName));
+  };
+
+  if (weatherLoading) {
     return <CityCardSkeleton cityName={cityName} onClick={handleClick} />;
   }
 
-  if (!weather) {
+  if (!weatherData || weatherError || isError) {
     return (
       <Stack sx={{ p: 2, alignItems: 'center' }}>
         <Typography>Error loading weather data for {cityName}.</Typography>
@@ -62,9 +54,9 @@ export default function CityCard({ cityName }: CityCardProps) {
     );
   }
 
-  const iconCode = weather.weather[0]?.icon;
-  const description = weather.weather[0]?.description;
-  const temperature = weather.main.temp;
+  const iconCode = weatherData.weather[0]?.icon;
+  const description = weatherData.weather[0]?.description;
+  const temperatureC = weatherData.main.temp;
 
   const iconUrl = iconCode ? `https://openweathermap.org/img/wn/${iconCode}@2x.png` : null;
 
@@ -75,7 +67,15 @@ export default function CityCard({ cityName }: CityCardProps) {
           <LocationOnIcon />
           <Typography>{cityName}</Typography>
         </Stack>
-        <FavoriteIcon />
+        <MotionIconButton
+          onClick={handleToggleFavorite}
+          color={isFavorite ? 'error' : 'default'}
+          whileTap={{ scale: 0.8 }}
+          animate={isFavorite ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+        </MotionIconButton>
       </Stack>
 
       <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 2 }}>
@@ -92,7 +92,7 @@ export default function CityCard({ cityName }: CityCardProps) {
 
         <Stack direction="column">
           <Typography variant="h5">
-            {temperature !== undefined ? `${Math.round(temperature)}°C` : '...'}
+            <Temperature valueC={temperatureC} />
           </Typography>
           <Typography sx={{ textTransform: 'capitalize' }}>
             {description || 'Ładowanie pogody...'}
@@ -104,14 +104,14 @@ export default function CityCard({ cityName }: CityCardProps) {
         <Grid size={{ xs: 12, sm: 6 }}>
           <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
             <Typography>Humidity:</Typography>
-            <Typography>{`${weather.main.humidity}%`}</Typography>
+            <Typography>{`${weatherData.main.humidity}%`}</Typography>
           </Stack>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6 }}>
           <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
             <Typography>Wind:</Typography>
-            <Typography>{`${Math.round(weather.wind.speed * 3.6)} km/h`}</Typography>
+            <Typography>{`${Math.round(weatherData.wind.speed * 3.6)} km/h`}</Typography>
           </Stack>
         </Grid>
 
@@ -119,7 +119,7 @@ export default function CityCard({ cityName }: CityCardProps) {
           <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
             <Typography>Rain (1h):</Typography>
             <Typography>
-              {weather.rain?.['1h'] !== undefined ? `${weather.rain['1h']} mm` : '—'}
+              {weatherData.rain?.['1h'] !== undefined ? `${weatherData.rain['1h']} mm` : '—'}
             </Typography>
           </Stack>
         </Grid>
@@ -127,7 +127,7 @@ export default function CityCard({ cityName }: CityCardProps) {
         <Grid size={{ xs: 12, sm: 6 }}>
           <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
             <Typography>Cloudiness:</Typography>
-            <Typography>{`${weather.clouds.all}%`}</Typography>
+            <Typography>{`${weatherData.clouds.all}%`}</Typography>
           </Stack>
         </Grid>
       </Grid>

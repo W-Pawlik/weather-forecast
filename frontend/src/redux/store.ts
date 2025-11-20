@@ -1,36 +1,29 @@
-import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 
-type Units = 'metric' | 'imperial';
-type ThemeMode = 'light' | 'dark';
+import settingsSliceReducer, { defaultSettingsState } from './slices/settingsSlice';
+import favCitiesSliceReducer, { defaultFavCitiesState } from './slices/favCitiesSlice';
 
-interface SettingsState {
-  units: Units;
-  theme: ThemeMode;
-  lang: 'pl' | 'en';
-}
+import { loadFromStorage, saveToStorage } from '@/utils/storage';
+import { SETTINGS_KEY, FAVCITIES_KEY } from '@/consts/localStorage';
 
-const initialState: SettingsState = {
-  units: 'metric',
-  theme: 'light',
-  lang: 'pl',
-};
-
-const settingsSlice = createSlice({
-  name: 'settings',
-  initialState,
-  reducers: {
-    setUnits: (s, a: PayloadAction<Units>) => void (s.units = a.payload),
-    toggleTheme: (s) => void (s.theme = s.theme === 'light' ? 'dark' : 'light'),
-    setLang: (s, a: PayloadAction<'pl' | 'en'>) => void (s.lang = a.payload),
-  },
-});
-
-export const { setUnits, toggleTheme, setLang } = settingsSlice.actions;
+const preloadedSettings = loadFromStorage(SETTINGS_KEY, defaultSettingsState);
+const preloadedFavCities = loadFromStorage(FAVCITIES_KEY, defaultFavCitiesState);
 
 export const store = configureStore({
   reducer: {
-    settings: settingsSlice.reducer,
+    settings: settingsSliceReducer,
+    favCities: favCitiesSliceReducer,
   },
+  preloadedState: {
+    settings: preloadedSettings,
+    favCities: preloadedFavCities,
+  },
+});
+
+store.subscribe(() => {
+  const state = store.getState();
+  saveToStorage(SETTINGS_KEY, state.settings);
+  saveToStorage(FAVCITIES_KEY, state.favCities);
 });
 
 export type RootState = ReturnType<typeof store.getState>;
