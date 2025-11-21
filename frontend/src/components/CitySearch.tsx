@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { CityOption } from '@/data/cities';
 import { useDebounced } from '@/utils/debounceF';
-import { searchCities } from '@/services/searchCities';
+import { searchCitiesService } from '@/services/searchCitiesService/searchCitiesService';
 
 const sanitize = (s: string) => s.replace(/[^\p{L}\s-]/gu, '');
 
@@ -19,6 +19,8 @@ export default function CitySearch() {
   const [options, setOptions] = useState<CityOption[]>([]);
   const [loading, setLoading] = useState(false);
   const debounced = useDebounced(input, 200);
+
+  const searchCities = searchCitiesService.searchCities;
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -51,7 +53,7 @@ export default function CitySearch() {
     return () => {
       alive = false;
     };
-  }, [debounced, focused]);
+  }, [debounced, focused, searchCities]);
 
   const shouldOpen = focused && sanitize(input).trim().length > 0;
 

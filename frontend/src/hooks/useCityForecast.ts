@@ -1,26 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { CityDTO, WeatherDTO } from '@/types/weatherApi';
+import { CityDTO, FiveDayForecastDTO } from '@/types/weatherApi';
 import { weatherService } from '@/services/openWeatherService/weatherDataService';
 
-export function useCityWeather(cityName: string) {
-  return useQuery<WeatherDTO | null>({
-    queryKey: ['weather', cityName],
+export function useCityForecast(cityName: string) {
+  return useQuery<FiveDayForecastDTO | null>({
+    queryKey: ['forecast', cityName],
     enabled: !!cityName,
-    retry: 3,
-    staleTime: 2 * 60 * 1000,
     queryFn: async () => {
       const coordsList: CityDTO[] = await weatherService.fetchCoordsByName(cityName);
-
       if (!coordsList.length) {
         console.warn('No coords for: ', cityName);
         return null;
       }
-
       const coords = coordsList[0];
-
-      const weatherData = await weatherService.fetchWeatherByCoords(coords);
-      return weatherData;
+      const forecast = await weatherService.fetchFiveDaysForecastByCoords(coords);
+      return forecast;
     },
   });
 }

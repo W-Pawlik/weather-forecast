@@ -3,11 +3,9 @@ export interface CityCoords {
   lon: number;
 }
 
-export interface CityDTO {
-  country: string;
-  lat: CityCoords['lat'];
-  lon: CityCoords['lon'];
+export interface CityDTO extends CityCoords {
   name: string;
+  country?: string;
   state?: string;
 }
 
@@ -76,4 +74,61 @@ export interface WeatherDTO {
   id: number;
   name: string;
   cod: number;
+}
+
+export interface ForecastListItem {
+  dt: number;
+  dt_txt: string;
+  main: {
+    temp: number;
+    feels_like: number;
+    temp_min: number;
+    temp_max: number;
+    pressure: number;
+    humidity: number;
+  };
+  weather: {
+    id: number;
+    main: string;
+    description: string;
+    icon: string;
+  }[];
+  clouds: {
+    all: number;
+  };
+  wind: {
+    speed: number;
+    deg: number;
+    gust?: number;
+  };
+  visibility: number;
+  pop: number;
+  rain?: {
+    '3h'?: number;
+  };
+  snow?: {
+    '3h'?: number;
+  };
+  sys: {
+    pod: 'd' | 'n';
+  };
+}
+
+export interface ForecastCity {
+  id: number;
+  name: string;
+  coord: CityCoords;
+  country: string;
+  population: number;
+  timezone: number;
+  sunrise: number;
+  sunset: number;
+}
+
+export interface FiveDayForecastDTO {
+  cod: string;
+  message: number;
+  cnt: number;
+  list: ForecastListItem[];
+  city: ForecastCity;
 }
