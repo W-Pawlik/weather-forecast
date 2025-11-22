@@ -2,7 +2,7 @@ import { AppBar, Toolbar, IconButton, Typography, Stack } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useLocation } from 'react-router-dom';
 
-import CitySearch from '@/components/CitySearch';
+import CitySearch from '@/components/layout/CitySearch';
 
 export default function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
   const pathName = useLocation().pathname;

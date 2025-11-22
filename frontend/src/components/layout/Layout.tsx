@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Box } from '@mui/material';
 
-import TopBar from '@/components/TopBar';
-import NavDrawer from '@/components/NavDrawer';
+import TopBar from '@/components/layout/TopBar';
+import NavDrawer from '@/components/layout/NavDrawer';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);

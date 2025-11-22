@@ -1,12 +1,7 @@
-import '@testing-library/jest-dom';
-import { afterEach, vi } from 'vitest';
+import { afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
 
 afterEach(() => {
   cleanup();
 });
-
-if (!('fetch' in globalThis)) {
-  // @ts-ignore
-  globalThis.fetch = vi.fn();
-}
