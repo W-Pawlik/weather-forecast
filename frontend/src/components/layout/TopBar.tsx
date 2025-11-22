@@ -8,9 +8,15 @@ export default function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
   const pathName = useLocation().pathname;
 
   return (
-    <AppBar position="fixed" sx={{ px: '1rem', py: '0.5rem' }}>
+    <AppBar position="fixed">
       <Toolbar
-        sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          justifyContent: 'space-between',
+          px: '1rem',
+        }}
       >
         <Stack direction="row" alignItems="center" spacing={1}>
           <IconButton

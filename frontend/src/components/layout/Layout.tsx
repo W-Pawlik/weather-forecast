@@ -8,8 +8,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <TopBar onMenuClick={() => setOpen(true)} />
+
+      <Box sx={(theme) => ({ ...theme.mixins.toolbar })} />
 
       <NavDrawer variant="temporary" open={open} onClose={() => setOpen(false)} width={280} />
 
@@ -17,8 +19,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          mt: 8,
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         {children}
