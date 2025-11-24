@@ -1,5 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
 
+import MapForecastSummarySkeleton from './MapForecastSummarySkeleton';
+
 import Temperature from '@/components/common/Temperature';
 import type { DailyForecast } from '@/utils/forecast';
 
@@ -15,7 +17,7 @@ export default function MapForecastSummary({
   isError,
 }: MapForecastSummaryProps) {
   if (isLoading) {
-    return <Typography>Loading forecast...</Typography>;
+    return <MapForecastSummarySkeleton />;
   }
 
   if (isError) {

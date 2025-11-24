@@ -3,7 +3,7 @@ import type { Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useSelector } from 'react-redux';
 
-import Home from '../Home';
+import Home from '../FavouritesCiies';
 vi.mock('react-redux', () => ({
   useSelector: vi.fn(),
 }));

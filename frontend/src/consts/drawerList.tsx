@@ -11,7 +11,7 @@ type NavItem = {
 };
 
 export const navItems: NavItem[] = [
-  { to: '/', label: 'Home', icon: HomeIcon, end: true },
-  { to: '/map', label: 'Map', icon: MapIcon },
+  { to: '/', label: 'Map', icon: HomeIcon, end: true },
+  { to: '/favouritesCiies', label: 'Favourites Ciies', icon: MapIcon },
   { to: '/settings', label: 'Settings', icon: SettingsIcon },
 ];

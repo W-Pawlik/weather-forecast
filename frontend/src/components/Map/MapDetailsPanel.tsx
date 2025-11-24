@@ -1,4 +1,4 @@
-import { IconButton, Paper, Stack, Typography } from '@mui/material';
+import { IconButton, keyframes, Paper, Stack, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 import MapCurrentWeatherSummary from './MapCurrentWeatherSummary';
@@ -23,6 +23,17 @@ interface MapDetailsPanelProps {
   width: number;
   onClose: () => void;
 }
+
+const slideUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 export default function MapDetailsPanel({
   cityName,
@@ -51,6 +62,7 @@ export default function MapDetailsPanel({
         width,
         maxHeight: '70vh',
         overflowY: 'auto',
+        animation: `${slideUp} 220ms ease-out`,
       }}
     >
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>

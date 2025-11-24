@@ -19,6 +19,8 @@ export function useCityWeather(cityName: string) {
 
       const coords = coordsList[0];
 
+      console.log('Fetched coords for ', cityName, coords);
+
       const weatherData = await weatherService.fetchWeatherByCoords(coords);
       return weatherData;
     },

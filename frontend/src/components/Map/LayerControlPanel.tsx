@@ -20,7 +20,7 @@ export default function LayerControlPanel({
         p: 1.5,
         borderRadius: 3,
         bgcolor: (t) =>
-          t.palette.mode === 'dark' ? 'rgba(30,30,30,0.9)' : 'rgba(255,255,255,0.95)',
+          t.palette.mode === 'dark' ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.98)',
         width,
       }}
     >

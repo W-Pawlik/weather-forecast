@@ -1,5 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
 
+import MapCurrentWeatherSummarySkeleton from './MapCurrentWeatherSummarySkeleton';
+
 import Temperature from '@/components/common/Temperature';
 import type { WeatherDTO } from '@/types/weatherApi';
 
@@ -27,7 +29,7 @@ export default function MapCurrentWeatherSummary({
   popPercent,
 }: MapCurrentWeatherSummaryProps) {
   if (isLoading) {
-    return <Typography>Loading weather data for {cityName}...</Typography>;
+    return <MapCurrentWeatherSummarySkeleton />;
   }
 
   if (isError || !weather) {

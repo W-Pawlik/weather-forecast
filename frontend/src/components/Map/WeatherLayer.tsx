@@ -3,10 +3,7 @@ import { TileLayer } from 'react-leaflet';
 
 export type WeatherLayerType = 'none' | 'temperature' | 'wind' | 'precipitation' | 'clouds';
 
-interface WeatherLayerProps {
-  activeLayer: WeatherLayerType;
-  apiKey?: string;
-}
+const API_KEY = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
 
 function getOpenWeatherV2Op(layer: WeatherLayerType): string | null {
   switch (layer) {
@@ -40,14 +37,18 @@ function getOpenWeatherV1Layer(layer: WeatherLayerType): string | null {
   }
 }
 
-export function WeatherLayer({ activeLayer, apiKey }: WeatherLayerProps) {
+interface WeatherLayerProps {
+  activeLayer: WeatherLayerType;
+}
+
+export default function WeatherLayer({ activeLayer }: WeatherLayerProps) {
   const [useFallbackV1, setUseFallbackV1] = useState(false);
 
   useEffect(() => {
     setUseFallbackV1(false);
-  }, [activeLayer, apiKey]);
+  }, [activeLayer]);
 
-  if (!apiKey || activeLayer === 'none') {
+  if (!API_KEY || activeLayer === 'none') {
     return null;
   }
 
@@ -55,39 +56,17 @@ export function WeatherLayer({ activeLayer, apiKey }: WeatherLayerProps) {
   const layerV1 = getOpenWeatherV1Layer(activeLayer);
 
   if (!useFallbackV1 && opV2) {
-    let extraParams = '&opacity=1';
-
-    if (activeLayer === 'wind') {
-      const windPalette =
-        '1:FFFFFF00;' +
-        '5:EECECCFF;' +
-        '15:B364BCFF;' +
-        '25:3F213BFF;' +
-        '50:744CACFF;' +
-        '100:4600AFFF;' +
-        '200:0D1126FF';
-
-      extraParams += `&use_norm=true&arrow_step=24&fill_bound=true&palette=${encodeURIComponent(
-        windPalette
-      )}`;
-    }
-
-    if (activeLayer === 'temperature') {
-      extraParams += '&fill_bound=true';
-    }
-
-    const urlV2 = `https://maps.openweathermap.org/maps/2.0/weather/${opV2}/{z}/{x}/{y}?appid=${apiKey}${extraParams}`;
+    const urlV2 = `https://maps.openweathermap.org/maps/2.0/weather/${opV2}/{z}/{x}/{y}?appid=${API_KEY}&opacity=0.9`;
 
     return (
       <TileLayer
         key={`owm-v2-${opV2}`}
         url={urlV2}
         zIndex={500}
-        opacity={0.8}
+        opacity={0.9}
         attribution='&copy; <a href="https://openweathermap.org/">OpenWeather</a>'
         eventHandlers={{
           tileerror: () => {
-            console.warn('OpenWeather Maps 2.0 failed, falling back to 1.0 tiles');
             setUseFallbackV1(true);
           },
         }}
@@ -96,7 +75,8 @@ export function WeatherLayer({ activeLayer, apiKey }: WeatherLayerProps) {
   }
 
   if (layerV1) {
-    const urlV1 = `https://tile.openweathermap.org/map/${layerV1}/{z}/{x}/{y}.png?appid=${apiKey}`;
+    const urlV1 = `https://tile.openweathermap.org/map/${layerV1}/{z}/{x}/{y}.png?appid=${API_KEY}`;
+
     return (
       <TileLayer
         key={`owm-v1-${layerV1}`}

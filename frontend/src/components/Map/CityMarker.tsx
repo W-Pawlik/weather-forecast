@@ -2,29 +2,24 @@ import { useMemo } from 'react';
 import { Marker } from 'react-leaflet';
 import L, { DivIcon } from 'leaflet';
 
-import { useCityWeather } from '@/hooks/userCityWeather';
+import type { MapCity } from '@/types/mapCities';
 
-interface CityMarkerProps {
-  cityName: string;
-  onSelect: (cityName: string) => void;
+interface CityWeatherMarkerProps {
+  city: MapCity;
+  tempLabel: string;
+  iconUrl: string | null;
+  onSelectCity: (cityName: string) => void;
 }
 
-export default function CityMarker({ cityName, onSelect }: CityMarkerProps) {
-  const { data: weather } = useCityWeather(cityName);
+export default function CityWeatherMarker({
+  city,
+  tempLabel,
+  iconUrl,
+  onSelectCity,
+}: CityWeatherMarkerProps) {
+  const position: [number, number] = [city.coord.lat, city.coord.lon];
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const position: [number, number] | null = weather?.coord
-    ? [weather.coord.lat, weather.coord.lon]
-    : null;
-
-  const iconCode = weather?.weather[0]?.icon;
-  const tempLabel = weather ? `${Math.round(weather.main.temp)}°C` : '';
-  const iconUrl = iconCode ? `https://openweathermap.org/img/wn/${iconCode}.png` : null;
-
-  const markerIcon: DivIcon | undefined = useMemo(() => {
-    if (!position) return undefined;
-    if (typeof window === 'undefined') return undefined;
-
+  const markerIcon: DivIcon = useMemo(() => {
     const imgHtml = iconUrl
       ? `<img src="${iconUrl}" alt="" style="width:18px;height:18px;object-fit:contain;" />`
       : '';
@@ -50,9 +45,7 @@ export default function CityMarker({ cityName, onSelect }: CityMarkerProps) {
       iconSize: [60, 30],
       iconAnchor: [30, 30],
     });
-  }, [position, iconUrl, tempLabel]);
-
-  if (!position || !markerIcon) return null;
+  }, [iconUrl, tempLabel]);
 
   return (
     <Marker
@@ -63,7 +56,7 @@ export default function CityMarker({ cityName, onSelect }: CityMarkerProps) {
           if (e?.originalEvent?.stopPropagation) {
             e.originalEvent.stopPropagation();
           }
-          onSelect(cityName);
+          onSelectCity(city.name);
         },
       }}
     />
